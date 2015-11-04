@@ -56,7 +56,7 @@ if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
 	foreach($addTags as $tag){
 		$pos++;
 		$newTag = $conn->prepare("INSERT INTO `fileupload`.`options` (`group_id`, `option`, `sort`) VALUES ('4', :tag, :pos)");
-		$newTag->bindParam(':tag', trim($tag) ;
+		$newTag->bindParam(':tag', trim($tag) );
 		$newTag->bindParam(':pos', $pos);
 		$newTag->execute();
 	}
@@ -127,7 +127,7 @@ if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
 	
 	}
 	if( $uploaded == 1){
-		$file->setUploader( ($_SESSION['username'] != "" ? $_SESSION['username'] : 'birwin' ); //from session?
+		$file->setUploader( ($_SESSION['username'] != "" ? $_SESSION['username'] : 'birwin' ) ); //from session?
 		
 		if( $file->getExpiry() == ""){
 			$file->setExpiry("0000-00-00 00:00:00");
@@ -172,13 +172,13 @@ if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
 
 		}
 	
-		$fileUploadPath = path2url(DIRECTORY_SEPARATOR.UPLOAD_FOLDER_NAME.DIRECTORY_SEPARATOR.$uploadTo.issetOrBlank($_FILES["file-file"]['name']) );
-		$fileUploadPath = str_replace('//','/',$fileUploadPath);
+		$fileUploadPath = path2url( str_replace('//','/',DIRECTORY_SEPARATOR.UPLOAD_FOLDER_NAME.DIRECTORY_SEPARATOR.$uploadTo.issetOrBlank($_FILES["file-file"]['name'])) );
+		//$fileUploadPath = str_replace('//','/',$fileUploadPath);
 		
 	
-		echo '<p>File Link: <a href="'.$fileUploadPath. '" target="_blank">'.issetOrBlank($_FILES["file-file"]['name']).'</a>';
+		echo '<p>File Link: <a href="'.$fileUploadPath. '" target="_blank">'.issetOrBlank($_FILES["file-file"]['name']).'</a></p>';
 		
-		echo '<textarea><a href="'.$fileUploadPath. '" target="_blank">'.issetOrBlank($_FILES["file-file"]['name']).'</a></textarea>';
+		echo '<textarea style="width: 100%;"><a href="'.$fileUploadPath. '" target="_blank">'.issetOrBlank($_FILES["file-file"]['name']).'</a></textarea>';
 		
 	
 	}
@@ -321,7 +321,7 @@ if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
 			<td>
 				<input type="date" name="file-expiry" value="<?php
 					//if has expiry, convert date
-					if( $file->getExpiry() != "0000-00-00 00:00:00" || $file->getExpiry() != "" ){
+					if( $file->getExpiry() != "0000-00-00 00:00:00" && $file->getExpiry() != "" ){
 						echo date('Y-m-d', strtotime( $file->getExpiry() ) );
 					}
 				?>" />

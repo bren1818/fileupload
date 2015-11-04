@@ -211,6 +211,9 @@
 			});
 					
 		});
+		function copyToClipboard (text) {
+			window.prompt ("Copy to clipboard: Ctrl+C, Enter", text);
+		}
 	</script>
 	<style>
 		#file-upload{
@@ -267,7 +270,7 @@
 		</tr>
 		
 		<tr>
-			<td>File Path:</td><td><?php echo $file->getPath(); ?></td>
+			<td>File Path:</td><td><?php echo $file->getPath(); echo '  <a class="clipboard" onclick="copyToClipboard(\''.WEB_ROOT.preg_replace('#/+#','/',$file->getPath()).'\')"><img src="/css/clipboard.png" alt="Copy File Path to Clipboard" title="Copy File Path to Clipboard"/></a>'; ?></td>
 		</tr>
 		
 		<tr>
@@ -432,9 +435,18 @@
 		</tr>
 		
 		<tr>
+			<td>
+				Delete: 
+			</td>
+			<td>
+				<?php echo '<a href="deleteFile.php?fileID='.$file->getId().'&key='.hash('md5',KEY.$file->getPath() ).'">Delete</a>'; ?>
+			</td>
+		</tr>
+		
+		<tr>
 			<td colspan="2">
-			<input name="fileID" type="hidden" value="<?php echo $file->getId(); ?>" />
-							<input name="key" type="hidden" value="<?php echo $key; ?>" />
+				<input name="fileID" type="hidden" value="<?php echo $file->getId(); ?>" />
+				<input name="key" type="hidden" value="<?php echo $key; ?>" />
 				<input type="submit" value="Update" />
 				<a href="/admin">Cancel</a>
 			</td>
