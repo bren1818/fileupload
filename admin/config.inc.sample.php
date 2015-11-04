@@ -5,8 +5,9 @@ date_default_timezone_set("America/New_York");
 define('ROOT_DIR',  $_SERVER["DOCUMENT_ROOT"]  );
 define('UPLOAD_FOLDER_NAME','UPLOADS/');
 define('UPLOADS_DIR', ROOT_DIR.DIRECTORY_SEPARATOR.UPLOAD_FOLDER_NAME.DIRECTORY_SEPARATOR);
-define('WEB_ROOT', 'http://cmsweb03.wlu.ca/');
+define('WEB_ROOT', 'http://localhost/');
 define('KEY', 'SECURITY_CHECK'.date('Y-m-d') );
+define('SESSION_LENGTH_MIN', 5 );
 
 
 
@@ -23,7 +24,7 @@ function getConnection() {
 		$dbUser = ""; 			//Database User
 		$dbPass = ""; 				//Database Password
 		$dbHost = "";
-		$port = '';
+		$port = '3307';
 	}else if( $mode == 3 ){
 		//prod connection
 	}
@@ -48,10 +49,12 @@ function issetOrBlank($input){
 
 function adminPage(){
 	session_start();
-	if( !isset($_SESSION['username']) || $_SESSION['name'] == "" ){
+	if( !isset($_SESSION['expiry']) || (strtotime( date("Y-m-d H:i:s") ) > $_SESSION['expiry'] ) ){
 		$_SESSION = array();
 		session_destroy();
 		header("location: /admin/login.php");
+	}else{
+		$_SESSION['expiry'] = strtotime( date("Y-m-d H:i:s") ) + 60 * SESSION_LENGTH_MIN;	
 	}
 }
 
@@ -69,6 +72,7 @@ function menubar(){
 		<a href="addFile.php">Upload a File</a>
 		<a href="addAlias.php">Create Alias</a>
 		<a href="stats.php">File Stats</a>
+		<a href="filebrowser.php">File Browser</a>
 		<a href="logout.php">Log Out</a>
 	</div>	
 	<?php
@@ -95,19 +99,17 @@ function endsWith($haystack, $needle) {
 }
 
 function formatBytes($bytes, $precision = 2) { 
-    $units = array('KB', 'MB', 'GB', 'TB'); 
+    $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 
-	$bytes = ($bytes / 1024);
-	
     $bytes = max($bytes, 0); 
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
     $pow = min($pow, count($units) - 1); 
 
     // Uncomment one of the following alternatives
-    // $bytes /= pow(1024, $pow);
+     $bytes /= pow(1024, $pow);
     // $bytes /= (1 << (10 * $pow)); 
 
-    return round($bytes, $precision) . ' ' . ($units[$pow]=="" ? 'KB' :$units[$pow]); 
+    return round($bytes, $precision) . ' ' . $units[$pow]; 
 } 
 
 function pa($array){

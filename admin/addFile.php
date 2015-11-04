@@ -135,6 +135,9 @@ if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST'){
 		
 		if( $file->save() > 0 ){
 			echo '<h1>File Uploaded OK!</h1>';
+		}else{
+			echo '<h1>Failure Uploading File</h1>';
+			pa($file);
 		}
 	
 		if( issetOrBlank($_POST['file-alias']) != "" ){

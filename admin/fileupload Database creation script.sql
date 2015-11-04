@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `uploadedfile` (
   `aliasID` int(11) DEFAULT NULL,
   `path` varchar(255) DEFAULT NULL,
   `size` int(11) DEFAULT NULL,
-  `contentType` varchar(55) DEFAULT NULL,
+  `contentType` varchar(100) DEFAULT NULL,
   `extension` varchar(55) DEFAULT NULL,
   `uploader` varchar(55) DEFAULT NULL,
   `uploadDate` datetime DEFAULT NULL,
