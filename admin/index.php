@@ -36,7 +36,6 @@ adminPage();
 		<?php
 			menubar();
 			echo '<h1>Welcome Back: '.$_SESSION['name'].'</h1>';
-		//jquery Data tables..
 		?>
 		<fieldset>
 			<legend>Files</legend>

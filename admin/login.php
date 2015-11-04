@@ -55,68 +55,88 @@
 				
 					//error_log("Bren Debug - POST");
 					
+					//echo "Begin Post";
 				
 					$ch = curl_init();
-					curl_setopt($ch,CURLOPT_URL, 'http://web.wlu.ca/its/birwin/super_login_script.php?username='.$username."&password=".$password."&type=1");
-					curl_setopt($ch,CURLOPT_POST, true);
-					//curl_setopt($ch,CURLOPT_POSTFIELDS, $fields );
-					curl_setopt($ch, CURLOPT_TIMEOUT, '3');
-					curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-					curl_setopt($ch,CURLOPT_HEADER,  false);  // don't return headers
-					curl_setopt($ch,CURLOPT_FOLLOWLOCATION, true);   // follow redirects
-					curl_setopt($ch,CURLOPT_MAXREDIRS, 10);     // stop after 10 redirects
+					
+				
+					//curl_setopt($ch, CURLOPT_URL, 'https://10.10.86.27/its/birwin/super_login_script.php');
+					curl_setopt($ch, CURLOPT_URL, 'https://infoweb.wlu.ca/its/birwin/super_login_script.php');
+					
+					
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+					curl_setopt($ch, CURLOPT_POST, 3);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+					//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // On dev server only!
+					curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-					curl_setopt($ch, CURLOPT_FRESH_CONNECT, TRUE);
-						
+					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+					curl_setopt($ch, CURLOPT_VERBOSE, true);
+					
 					$result = curl_exec($ch);
-					curl_close($ch);
-					
-					//error_log("Bren Debug - Fin Post");
-					//error_log("Bren Debug - Result: ".$result);
-					
-					//Array ( [status] => 200 [data] => Array ( [user_password_combo_correct] => 1 [user_first_name] => Brendon [user_full_name] => Irwin [user_email] => birwin@wlu.ca [user_email2] => [user_title] => CMS Administrator [user_extension] => 4786 [user_username] => birwin [user_workforceid] => birwin2 [dn] => [id] => [sn] => [thirdpartyid] => [user_id] => 139010899 ) )
-					
-					//echo $json;
-					
-					if( $result != "" ){
-					
-					$decode = json_decode($result); 
-					$decode = (array)($decode);
-					
-					//print_r( $decode );
-					$status = $decode['status'];
-					$data = (array)$decode['data'];
-					
-					//error_log( "Bren Debug Status: ".$status." with Data: ".print_r($data, true)." from result: ".$result );
 					
 					
-					//stdClass Object ( [status] => 200 [data] => stdClass Object ( [user_password_combo_correct] => 1 [user_first_name] => Brendon [user_full_name] => Irwin [user_email] => birwin@wlu.ca [user_email2] => [user_title] => CMS Administrator [user_extension] => 4786 [user_username] => birwin [user_workforceid] => birwin2 [dn] => [id] => [sn] => [thirdpartyid] => [user_id] => 139010899 ) )
-					
-	
-					if( $status == 200){
-						//winner!
-						$_SESSION['usertitle'] = $data["user_title"];
-						$_SESSION['name'] = $data["user_first_name"].' '.$data["user_full_name"];
-						$_SESSION['username'] = $username;
-						
-						$login->setLastlogin( date("Y-m-d H:i:s") );
-						$login->save();
-						ob_clean();
-						header("location: /admin/index.php");
-					}else{
-						//failure
-						ob_clean();
-						header("location: /admin/login.php");
+					if (curl_errno($ch)) {
+						// this would be your first hint that something went wrong
+						//die('Couldn\'t send request: ' . curl_error($ch));
+						file_put_contents("log.txt",curl_error($ch), FILE_APPEND);
+
 					}
 					
+					$expiry = strtotime( date("Y-m-d H:i:s") ) + 60 * SESSION_LENGTH_MIN;	
+					$_SESSION['expiry'] = $expiry;
+					
+					//echo $result;
+					//echo print_r(curl_getinfo($ch), true);
+					//ob_flush();
+					
+					curl_close($ch);
+					//exit;
+					
+					if( $result != "" ){
+					//echo $result;
+					//exit;
+						$decode = json_decode($result); 
+						$decode = (array)($decode);
+						
+						//print_r( $decode );
+						$status = $decode['status'];
+						$data = (array)$decode['data'];
+						
+						//error_log( "Bren Debug Status: ".$status." with Data: ".print_r($data, true)." from result: ".$result );
+						
+						
+						//stdClass Object ( [status] => 200 [data] => stdClass Object ( [user_password_combo_correct] => 1 [user_first_name] => Brendon [user_full_name] => Irwin [user_email] => birwin@wlu.ca [user_email2] => [user_title] => CMS Administrator [user_extension] => 4786 [user_username] => birwin [user_workforceid] => birwin2 [dn] => [id] => [sn] => [thirdpartyid] => [user_id] => 139010899 ) )
+						
+		
+						if( $status == 200){
+							//winner!
+							$_SESSION['usertitle'] = $data["user_title"];
+							$_SESSION['name'] = $data["user_first_name"].' '.$data["user_full_name"];
+							$_SESSION['username'] = $username;
+							
+							$login->setLastlogin( date("Y-m-d H:i:s") );
+							$login->save();
+							ob_clean();
+							header("location: /admin/index.php");
+						}else{
+							//failure
+							ob_clean();
+							header("location: /admin/login.php");
+						}
+					
 					}else{
-					//
-					$_SESSION['usertitle'] = 'TEST'; //$data["user_title"];
-					$_SESSION['name'] = 'TEST'; //$data["user_first_name"].' '.$data["user_full_name"];
-					$_SESSION['username'] = $username;
-					header("location: /admin/index.php");
-				}
+						//
+						$_SESSION['usertitle'] = 'TEST'; //$data["user_title"];
+						$_SESSION['name'] = 'TEST'; //$data["user_first_name"].' '.$data["user_full_name"];
+						$_SESSION['username'] = $username;
+						
+						
+						
+						header("location: /admin/index.php");
+					}
 					
 				}else{
 					echo '<h3>User `'.$username.'` has been disabled</h3>';

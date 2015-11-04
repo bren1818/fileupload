@@ -16,6 +16,7 @@
 		<?php	
 			if(session_destroy()){
 				echo '<h1>You have logged out successfully</h1>';
+				echo '<p><a href="login.php">Login again</a></p>';
 			}else{
 				echo '<h1>Unable to logout</h1>';
 			}
